@@ -12,7 +12,9 @@ Var
   entero,cant,menor: integer;
   prom: real;
 Begin
-  cant := 0; menor := 0; prom := 0;
+  cant := 0;
+  menor := 0;
+  prom := 0;
 
   reset(Enteros);
 
