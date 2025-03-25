@@ -9,7 +9,7 @@ NOTA: El nombre del archivo a crear o utilizar debe ser proporcionado por el usu
 
 Program ejercicio3;
 
-const corte = 'fin'
+const corte = 'fin';
 
 Type 
   str20 = string[20];
@@ -26,39 +26,81 @@ Type
 
 {modulos}
 
-procedure leerEmpleado(var e: Empleado);
-begin
-  writeln('Ingrese el apellido del empleado: ');
-  readln(e.apellido);
-  if(e.apellido <> corte) then
+procedure crearArchivoEmpleados();
+
+  procedure cargarArchivoEmpleados(var Empleados: ArchivoEmpleados);
+  
+    procedure leerEmpleado(var e: Empleado);
     begin
-      
+      with e do begin
+        writeln('Ingrese el apellido del empleado: ');
+        readln(apellido);
+        if(apellido <> corte) then begin
+          writeln('Ingrese el Nro del empleado: ');
+          readln(nro);
+          writeln('Ingrese el nombre del empleado: ');
+          readln(nombre);
+          writeln('Ingrese el dni del empleado: ');
+          readln(dni);
+          writeln('Ingrese la edad del empleado: ');
+          readln(edad);
+        end;
+      end;
     end;
-end;
+  
+  var
+    e: Empleado;
+  begin
+    leerEmpleado(e);
+    while(e.apellido <> corte) do
+      begin
+        write(Empleados,e);
+        leerEmpleado(e);
+      end;
+  end;
 
-
-procedure cargarArchivoEmpleados(var Empleados: ArchivoEmpleados);
 var
-  e: Empleado;
+  Empleados: ArchivoEmpleados;
+  nombre: string[10];
 begin
-  leerEmpleado(e);
-  while(e.apellido <> corte) do
-    begin
-      write(Empleado,e);
-      leerEmpleado(e);
-    end;
-    close(Empleado);
+  write('Ingrese el nombre del archivo: ');
+  readln(nombre);
+  Assign(Empleados,nombre);
+  rewrite(Empleados);
+  cargarArchivoEmpleados(Empleados);
+  close(Empleados);
 end;
 
+procedure procesarArchivoEmpleados()
+var
+  nombre: string[10];
+  Empleados: ArchivoEmpleados;
+begin 
+  write('Ingrese el nombre del archivo a leer: ');
+  readln(nombre);
+  Assign(Empleados,nombre);
+  reset(Empleados);
+  leerEmpleados(Empleados);
+  close(Empleados);
+  
+end;
 
 {programa principal}
 var
-  Empleados: ArchivoEmpleados;
-  nomArch: string[12];
+  opcion: integer;
 begin
-  write('Ingrese el nombre del archivo: ');
-  readln(nomArch);
-  Assign(Empleados,nomArch);
-  rewrite(Empleados);
-  cargarArchivoEmpleados(Empleados);
-end;
+  writeln('---- Menu ----');
+  writeln('Ingrese el numero de la opcion elegida.');
+  writeln('1.-Crear Archivo de empleados.');
+  writeln('2.-Abrir archivo ya creado.');
+  repeat
+    write('Opcion elegida -0 para salir-: ');
+    readln(opcion);
+    if ((opcion > 2) or (opcion < 0)) then
+      writeln('Valor incorrecto. Intente nuevamente.')
+  until (opcion = 1) or (opcion = 2) or (opcion = 0);
+  if(opcion = 1) then crearArchivoEmpleados()
+  else if(opcion = 2) then procesarArchivoEmpleados()
+  
+ 
+End.
