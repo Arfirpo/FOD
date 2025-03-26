@@ -72,6 +72,17 @@ begin
 end;
 
 procedure procesarArchivoEmpleados()
+
+  procedure leerEmpleados(var Empleados: ArchivoEmpleados);
+  var
+    e: Empleado;
+  begin
+    while not(eof(Empleados)) do
+    begin
+      read(Empleados,Empleado);
+    end;
+  end;
+
 var
   nombre: string[10];
   Empleados: ArchivoEmpleados;
@@ -102,5 +113,5 @@ begin
   if(opcion = 1) then crearArchivoEmpleados()
   else if(opcion = 2) then procesarArchivoEmpleados()
   
- 
 End.
+
