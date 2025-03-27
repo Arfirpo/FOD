@@ -33,17 +33,12 @@ procedure crearArchivoEmpleados();
     procedure leerEmpleado(var e: Empleado);
     begin
       with e do begin
-        writeln('Ingrese el apellido del empleado: ');
-        readln(apellido);
+        write('Ingrese el apellido del empleado: '); readln(apellido);
         if(apellido <> corte) then begin
-          writeln('Ingrese el Nro del empleado: ');
-          readln(nro);
-          writeln('Ingrese el nombre del empleado: ');
-          readln(nombre);
-          writeln('Ingrese el dni del empleado: ');
-          readln(dni);
-          writeln('Ingrese la edad del empleado: ');
-          readln(edad);
+          write('Ingrese el nombre del empleado: '); readln(nombre);
+          write('Ingrese el Nro del empleado: '); readln(nro);
+          write('Ingrese el dni del empleado: '); readln(dni);
+          write('Ingrese la edad del empleado: '); readln(edad);
         end;
       end;
     end;
@@ -55,6 +50,7 @@ procedure crearArchivoEmpleados();
     while(e.apellido <> corte) do
       begin
         write(Empleados,e);
+        writeln();
         leerEmpleado(e);
       end;
   end;
@@ -63,35 +59,134 @@ var
   Empleados: ArchivoEmpleados;
   nombre: string[10];
 begin
+  writeln();
   write('Ingrese el nombre del archivo: ');
   readln(nombre);
+  writeln();
   Assign(Empleados,nombre);
   rewrite(Empleados);
   cargarArchivoEmpleados(Empleados);
   close(Empleados);
+  writeln('Archivo creado exitosamente');
 end;
 
-procedure procesarArchivoEmpleados()
+procedure procesarArchivoEmpleados();
 
-  procedure leerEmpleados(var Empleados: ArchivoEmpleados);
-  var
-    e: Empleado;
+  procedure imprimirEmpleado(e: Empleado);
   begin
+    writeln('Nombre: ',e.nombre);
+    writeln('Apellido: ',e.apellido);
+    writeln('DNI: ',e.dni);
+    writeln('Numero de Empleado: ',e.nro);
+    writeln('Edad: ',e.edad);
+  end;
+
+  procedure buscarEmpleado(var Empleados: ArchivoEmpleados; nomOape: str20);
+  var alMenosUno: boolean; e: Empleado;
+  begin
+    alMenosUno := false;
+    reset(Empleados);
+    writeln();
+    writeln('--- Lista de Empleados con Nombre/Apellido: ',nomOape,'  ---');
+    writeln();
+    while not EOF(Empleados) do
+    begin
+      read(Empleados,e);
+      if(e.nombre = nomOape) or (e.apellido = nomOape) then
+      begin
+        if not alMenosUno then alMenosUno := true;
+        imprimirEmpleado(e);        
+      end;
+    end;
+
+    if not alMenosUno then writeln('No se encontro ningun empleado con ese Nombre/Apellido.');
+  end;
+
+  procedure listaDeEmpleados(var Empleados: ArchivoEmpleados);
+  var e: Empleado; alMenosUno: boolean;
+  begin
+    alMenosUno := false;
+    reset(Empleados);
+    writeln();
+    writeln('--- Lista de Empleados ---');
+    writeln();
     while not(eof(Empleados)) do
     begin
-      read(Empleados,Empleado);
+      read(Empleados,e);
+      if e.apellido <> '' then 
+      begin
+        if not alMenosUno then alMenosUno := true;          
+        imprimirEmpleado(e);
+      end; 
+      writeln();
     end;
+  end;
+
+  procedure listaJubilacion(var Empleados: ArchivoEmpleados);
+  var e: Empleado; alMenosUno: boolean;
+  begin
+
+    alMenosUno := false;
+    reset(Empleados);
+
+    writeln();
+    writeln('--- Lista de Empleados proximos a Jubilarse ---');
+    writeln();
+    while not(eof(Empleados)) do
+    begin
+      read(Empleados,e);
+      if(e.edad > 70) then 
+      begin
+        if not alMenosUno then alMenosUno := true;
+        imprimirEmpleado(e);
+        writeln();  
+      end;
+    end;
+    if not alMenosUno then writeln('No existen empleados proximos a la edad jubilatoria.')
   end;
 
 var
   nombre: string[10];
   Empleados: ArchivoEmpleados;
-begin 
-  write('Ingrese el nombre del archivo a leer: ');
-  readln(nombre);
+  opc: integer;
+  nomOape: str20;
+begin
+  writeln();
+  write('Ingrese el nombre del archivo a leer: '); readln(nombre);
   Assign(Empleados,nombre);
-  reset(Empleados);
-  leerEmpleados(Empleados);
+  writeln();
+  writeln('-- Archivo de ',nombre,' --');
+  writeln();
+
+  repeat
+    writeln();
+    writeln('-- Opciones --');
+    writeln();
+    writeln('1.- Buscar empleado por nombre o apellido.');
+    writeln('2.- Ver lista de empleados completa.');
+    writeln('3.- Lista de empleados proximos a jubilarse.');
+    writeln('0.- Salir.');
+    writeln();
+    repeat
+      write('Opcion elegida: '); readln(opc);
+      writeln();
+      if (opc < 0) or (opc > 3) then
+      begin
+        writeln('Opcion incorrecta. Intente nuevamente. -0 para salir-');
+        writeln();
+      end;
+    until (opc = 0) or (opc = 1) or (opc = 2) or (opc = 3);
+    case opc of
+      1:  begin
+            write('Inrese Nombre/Apellido del Empleado buscado: '); readln(nomOape);
+            buscarEmpleado(Empleados,nomOape);
+          end;
+      2: listaDeEmpleados(Empleados);
+      3: listaJubilacion(Empleados);
+      0: break;
+    end;
+  until false;
+  
   close(Empleados);
   
 end;
@@ -100,18 +195,19 @@ end;
 var
   opcion: integer;
 begin
-  writeln('---- Menu ----');
-  writeln('Ingrese el numero de la opcion elegida.');
-  writeln('1.-Crear Archivo de empleados.');
-  writeln('2.-Abrir archivo ya creado.');
   repeat
-    write('Opcion elegida -0 para salir-: ');
-    readln(opcion);
-    if ((opcion > 2) or (opcion < 0)) then
-      writeln('Valor incorrecto. Intente nuevamente.')
-  until (opcion = 1) or (opcion = 2) or (opcion = 0);
-  if(opcion = 1) then crearArchivoEmpleados()
-  else if(opcion = 2) then procesarArchivoEmpleados()
-  
+    writeln();
+    writeln('---- Menu Principal ----');
+    writeln();
+    writeln('1.-Crear Archivo de empleados.');
+    writeln('2.-Abrir archivo ya creado.');
+    writeln();
+    repeat
+      write('Opcion elegida -0 para salir-: '); readln(opcion);
+      if ((opcion > 2) or (opcion < 0)) then
+        writeln('Valor incorrecto. Intente nuevamente.')
+    until (opcion = 1) or (opcion = 2) or (opcion = 0);
+    if(opcion = 1) then crearArchivoEmpleados()
+    else if(opcion = 2) then procesarArchivoEmpleados()
+  until (opcion = 0);
 End.
-
