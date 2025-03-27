@@ -2,3 +2,6 @@
 *.exe
 *.bat
 .vscode
+*.dat
+*_archivos
+*.bin
