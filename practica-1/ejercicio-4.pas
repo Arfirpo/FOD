@@ -5,7 +5,7 @@ c. Exportar el contenido del archivo a un archivo de texto llamado “todos_empl
 d. Exportar a un archivo de texto llamado: “faltaDNIEmpleado.txt”, los empleados que no tengan cargado el DNI (DNI en 00).
 NOTA: Las búsquedas deben realizarse por número de empleado.}
 
-Program ejercicio4;
+Program ejercicio_4_P1;
 
 const corte = 'fin';
 

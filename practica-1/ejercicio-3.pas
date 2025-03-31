@@ -7,7 +7,7 @@
     iii. Listar en pantalla los empleados mayores de 70 años, próximos a jubilarse.
 NOTA: El nombre del archivo a crear o utilizar debe ser proporcionado por el usuario.}
 
-Program ejercicio3;
+Program ejercicio_3_P1;
 
 const corte = 'fin';
 

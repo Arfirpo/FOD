@@ -1,4 +1,4 @@
-Program ejercicio1;
+Program ejercicio_1_P1;
 
 Type 
   archivo = file Of integer;
