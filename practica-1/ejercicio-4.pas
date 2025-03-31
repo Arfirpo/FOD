@@ -144,39 +144,62 @@ procedure procesarArchivoEmpleados();
     if not alMenosUno then writeln('No existen empleados proximos a la edad jubilatoria.')
   end;
 
-procedure agregarEmpleados(var Empleados: ArchivoEmpleados);
+  procedure agregarEmpleados(var Empleados: ArchivoEmpleados);
 
-  function numeroLibre(var Empleados: ArchivoEmpleados; num: integer): boolean;
-  var 
-    e: Empleado; 
-    ok: Boolean;
-  begin
-    Reset(Empleados); // Reset to beginning of file
-    ok := true;
-    while not(Eof(Empleados)) and ok do begin
-      Read(Empleados,e);
-      if(e.nro = num) then ok := false;
+    function numeroLibre(var Empleados: ArchivoEmpleados; num: integer): boolean;
+    var 
+      e: Empleado; 
+      ok: Boolean;
+    begin
+      Reset(Empleados); // Reset to beginning of file
+      ok := true;
+      while not(Eof(Empleados)) and ok do begin
+        Read(Empleados,e);
+        if(e.nro = num) then ok := false;
+      end;
+      numeroLibre := ok;
     end;
-    numeroLibre := ok;
+
+  var 
+    e: Empleado;
+  begin
+    Reset(Empleados);
+    Seek(Empleados, FileSize(Empleados)); // Position at end of file
+    leerEmpleado(e);
+    while e.apellido <> corte do begin
+      if numeroLibre(Empleados, e.nro) then begin
+        Seek(Empleados, FileSize(Empleados)); // Reset position to end of file
+        Write(Empleados, e);
+      end
+      else
+        writeln('Error: Numero de empleado ya existe');
+        WriteLn();
+      leerEmpleado(e);
+    end;
   end;
 
-var 
-  e: Empleado;
-  filePos: integer; // To store the original file position
-begin
-  Reset(Empleados);
-  Seek(Empleados, FileSize(Empleados)); // Position at end of file
-  leerEmpleado(e);
-  while e.apellido <> corte do begin
-    if numeroLibre(Empleados, e.nro) then begin
-      Seek(Empleados, FileSize(Empleados)); // Reset position to end of file
-      Write(Empleados, e);
-    end
-    else
-      writeln('Error: Número de empleado ya existe');
-    leerEmpleado(e);
+  procedure actualizarEdadEmpleado(var Empleados: ArchivoEmpleados);
+  var e: Empleado; num: integer; esta: boolean;
+  begin
+    Reset(Empleados);
+    esta := false;
+    WriteLn();
+    Write('Ingrese numero de empleado: '); readln(num);
+    while not(Eof(Empleados)) and not(esta) do begin
+      Read(Empleados,e);
+      if e.nro = num then begin
+        esta := true;
+        WriteLn();
+        Write('Ingrese edad del Empleado: '); ReadLn(e.edad);
+        Seek(Empleados,FilePos(Empleados) - 1);
+        write(Empleados,e);
+      end;
+    end;
+    if Eof(Empleados) and not(esta) then begin
+      WriteLn();
+      WriteLn('El empleado con numero ',num,' no existe.');
+    end;
   end;
-end;
 
 var
   nombre: string[10];
@@ -199,17 +222,18 @@ begin
     writeln('2.- Ver lista de empleados completa.');
     writeln('3.- Ver lista de empleados proximos a jubilarse.');
     writeln('4.- Agregar empleados al archivo.');
+    writeln('5.- Actualizar edad de un empleado.');
     writeln('0.- Salir.');
     writeln();
     repeat
       write('Opcion elegida: '); readln(opc);
       writeln();
-      if (opc < 0) or (opc > 4) then
+      if (opc < 0) or (opc > 5) then
       begin
         writeln('Opcion incorrecta. Intente nuevamente. -0 para salir-');
         writeln();
       end;
-    until (opc >= 0) and (opc <= 4);
+    until (opc >= 0) and (opc <= 5);
     case opc of
       1:  begin
             write('Inrese Nombre/Apellido del Empleado buscado: '); readln(nomOape);
@@ -218,6 +242,7 @@ begin
       2: listaDeEmpleados(Empleados);
       3: listaJubilacion(Empleados);
       4: agregarEmpleados(Empleados);
+      5: actualizarEdadEmpleado(Empleados);
       0: break;
     end;
   until false;
