@@ -24,7 +24,6 @@ Type
 
 {modulos}
 
-
 procedure leerEmpleado(var e: Empleado);
 begin
   with e do begin
@@ -151,7 +150,7 @@ procedure procesarArchivoEmpleados();
       e: Empleado; 
       ok: Boolean;
     begin
-      Reset(Empleados); // Reset to beginning of file
+      Reset(Empleados);
       ok := true;
       while not(Eof(Empleados)) and ok do begin
         Read(Empleados,e);
@@ -164,18 +163,36 @@ procedure procesarArchivoEmpleados();
     e: Empleado;
   begin
     Reset(Empleados);
-    Seek(Empleados, FileSize(Empleados)); // Position at end of file
+    Seek(Empleados, FileSize(Empleados));
     leerEmpleado(e);
-    while e.apellido <> corte do begin
+    while (e.apellido <> corte) do begin
+      writeln();
       if numeroLibre(Empleados, e.nro) then begin
-        Seek(Empleados, FileSize(Empleados)); // Reset position to end of file
+        Seek(Empleados, FileSize(Empleados));
         Write(Empleados, e);
       end
-      else
+      else begin
         writeln('Error: Numero de empleado ya existe');
         WriteLn();
+      end;
       leerEmpleado(e);
     end;
+  end;
+
+  procedure exportarTextoEmpleados(var Empleados: ArchivoEmpleados);
+  var e: Empleado; carga: Text;
+  begin
+    writeln();
+    Assign(carga,'todos_empleados.txt');
+    Reset(Empleados);
+    Rewrite(carga);
+    writeln(carga,'--- Lista de Empleados ---');
+    while not(Eof(Empleados)) do begin
+      read(Empleados,e);
+      writeln(carga,'Nombre: ',e.nombre,', Apellido: ',e.apellido,', Edad: ',e.edad,', Nro. Empleado: ',e.nro,', Dni: ',e.dni,'.');
+    end;
+    writeln('Archivo generado exitosamente.');
+    close(carga);
   end;
 
   procedure actualizarEdadEmpleado(var Empleados: ArchivoEmpleados);
@@ -201,6 +218,26 @@ procedure procesarArchivoEmpleados();
     end;
   end;
 
+  procedure exportarTextoEmpleadosSinDni(var Empleados: ArchivoEmpleados);
+  var e: Empleado; carga: Text; alMenosUno: boolean;
+  begin
+    Reset(Empleados);
+    Assign(carga,'faltaDNIEmpleado.txt');
+    Rewrite(carga);
+    alMenosUno := false;
+    while not(Eof(empleados)) do begin
+      read(Empleados,e);
+      if(e.dni = 00) then begin
+        writeln(carga,'--- Lista de empleados sin DNI cargado ---');
+        if not(alMenosUno)then alMenosUno := true;
+        writeln(carga,'Nombre: ',e.nombre,', Apellido: ',e.apellido,', Edad: ',e.edad,', Nro. de Empleado: ',e.nro,'.');
+      end;
+    end;
+    if alMenosUno then writeln('El archivo se exporto exitosamente.')
+    else writeln('No Existen elementos para exportar.');
+    close(Empleados); close(carga);
+  end;
+
 var
   nombre: string[10];
   Empleados: ArchivoEmpleados;
@@ -223,17 +260,19 @@ begin
     writeln('3.- Ver lista de empleados proximos a jubilarse.');
     writeln('4.- Agregar empleados al archivo.');
     writeln('5.- Actualizar edad de un empleado.');
+    writeln('6.- Exportar en formato .txt.');
+    writeln('7.- Exportar en formato .txt. empleados sin dni.');
     writeln('0.- Salir.');
     writeln();
     repeat
       write('Opcion elegida: '); readln(opc);
       writeln();
-      if (opc < 0) or (opc > 5) then
+      if (opc < 0) or (opc > 7) then
       begin
         writeln('Opcion incorrecta. Intente nuevamente. -0 para salir-');
         writeln();
       end;
-    until (opc >= 0) and (opc <= 5);
+    until (opc >= 0) and (opc <= 7);
     case opc of
       1:  begin
             write('Inrese Nombre/Apellido del Empleado buscado: '); readln(nomOape);
@@ -243,6 +282,8 @@ begin
       3: listaJubilacion(Empleados);
       4: agregarEmpleados(Empleados);
       5: actualizarEdadEmpleado(Empleados);
+      6: exportarTextoEmpleados(Empleados);
+      7: exportarTextoEmpleadosSinDni(Empleados);
       0: break;
     end;
   until false;
@@ -253,7 +294,7 @@ end;
 
 {programa principal}
 var
-  opcion: integer;
+  opc: integer;
 begin
   repeat
     writeln();
@@ -263,11 +304,11 @@ begin
     writeln('2.-Abrir archivo ya creado.');
     writeln();
     repeat
-      write('Opcion elegida -0 para salir-: '); readln(opcion);
-      if ((opcion > 2) or (opcion < 0)) then
+      write('Opcion elegida -0 para salir-: '); readln(opc);
+      if ((opc > 2) or (opc < 0)) then
         writeln('Valor incorrecto. Intente nuevamente.')
-    until (opcion = 1) or (opcion = 2) or (opcion = 0);
-    if(opcion = 1) then crearArchivoEmpleados()
-    else if(opcion = 2) then procesarArchivoEmpleados()
-  until (opcion = 0);
+    until (opc = 1) or (opc = 2) or (opc = 0);
+    if(opc = 1) then crearArchivoEmpleados()
+    else if(opc = 2) then procesarArchivoEmpleados()
+  until (opc = 0);
 End.
