@@ -9,11 +9,59 @@ NOTA 2: El archivo de carga debe editarse de manera que cada celular se especifi
 program ejercicio_5_P1;
 
 type
-	{Tipos}
+	str10 = string[10];
 
+	rCelular = record
+		cod: Integer;
+		nom: str10;
+		desc: String;
+		marca: str10;
+		stockMin: Integer;
+		stockAct: Integer;
+	end;
+
+  ArchivoCelulares = file of rCelular;
+
+{modulos}
+
+  procedure crearArchivoCelulares(var Celulares: ArchivoCelulares);
+  var c: rCelular; nomArch:str10; carga: Text;
+  begin
+    WriteLn();
+    Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
+    Assign(Celulares,nomArch);
+    Assign(carga,'celulares.txt');
+    Rewrite(Celulares);
+    Reset(carga);
+    
+
+    close(Celulares); close(carga);
+  end;
+
+{programa principal}
 var
-	{Variables}
-
+  Celulares: ArchivoCelulares;
+  opc: Integer;
 begin
-	{Programa principal}
-end.
+  repeat
+    WriteLn();
+    WriteLn('---- Tienda de Celulares ----');
+    WriteLn();
+    WriteLn('---- Menu Principal ----');
+    WriteLn();
+    WriteLn('-- Opciones -->');
+    WriteLn();
+    WriteLn('0 --> Cerrar el programa.');
+    WriteLn('1 --> Crear nuevo archivo de celulares.');
+    WriteLn('2 --> Listar celulares sin stock.');
+    WriteLn('3 --> Buscar celulares por palabra clave.');
+    WriteLn('4 --> Exportar archivo en formato txt.');
+    Write('Ingrese la opcion deseada: '); Readln(opc);
+    case opc of
+      1: crearArchivoCelulares(Celulares);
+      // 2: celularesSinStock(Celulares);
+      // 3: buscarCelularesPorDesc(Celulares);
+      // 4: exportarArchivoCelulares(Celulares);
+    end;
+  until (opc = 0);
+End.
