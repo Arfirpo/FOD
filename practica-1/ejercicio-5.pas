@@ -13,9 +13,10 @@ type
 
 	rCelular = record
 		cod: Integer;
-		nom: str10;
 		desc: String;
 		marca: str10;
+    precio: Real;
+		nom: str10;
 		stockMin: Integer;
 		stockAct: Integer;
 	end;
@@ -30,12 +31,53 @@ type
     WriteLn();
     Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
     Assign(Celulares,nomArch);
-    Assign(carga,'celulares.txt');
     Rewrite(Celulares);
+    Assign(carga,'celulares.txt');
     Reset(carga);
-    
-
+    while not(Eof(carga)) do begin
+      ReadLn(carga,c.cod,c.precio,c.marca);
+      ReadLn(carga,c.stockAct,c.stockMin,c.desc);
+      ReadLn(carga,c.nom);
+      write(Celulares,c);
+    end;
     close(Celulares); close(carga);
+    WriteLn();
+    WriteLn('Archivo creado con exito.')
+  end;
+
+  procedure imprimirCelular(c: rCelular);
+  begin
+    with c do begin
+      WriteLn('Nombre: ',nom);
+      WriteLn('Marca: ',marca);
+      WriteLn('Precio: ',precio:0:2);
+      WriteLn('Codigo: ',cod);
+      WriteLn('Descripcion: ',desc);
+      WriteLn('Stock Minimo: ',stockMin);
+      WriteLn('Stock Actual: ',stockAct);
+    end;
+  end;
+
+  procedure celularesSinStock(var Celulares: ArchivoCelulares);
+  var c: rCelular; nomArch:str10; 
+  begin
+    WriteLn();
+    Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
+    WriteLn();
+    Assign(Celulares,nomArch);
+    Reset(Celulares);
+    while not(Eof(Celulares)) do begin
+      Read(Celulares,c);
+      if(c.stockAct < c.stockMin) then begin
+        WriteLn('---------');
+        WriteLn();
+        imprimirCelular(c);
+        WriteLn();
+      end;
+    end;
+    WriteLn('---------');
+    WriteLn();
+    Close(Celulares);
   end;
 
 {programa principal}
@@ -56,12 +98,15 @@ begin
     WriteLn('2 --> Listar celulares sin stock.');
     WriteLn('3 --> Buscar celulares por palabra clave.');
     WriteLn('4 --> Exportar archivo en formato txt.');
+    WriteLn();
     Write('Ingrese la opcion deseada: '); Readln(opc);
+    WriteLn();
     case opc of
       1: crearArchivoCelulares(Celulares);
-      // 2: celularesSinStock(Celulares);
+      2: celularesSinStock(Celulares);
       // 3: buscarCelularesPorDesc(Celulares);
       // 4: exportarArchivoCelulares(Celulares);
     end;
   until (opc = 0);
+  WriteLn('Programa finalizado.')
 End.
