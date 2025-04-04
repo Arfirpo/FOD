@@ -103,6 +103,24 @@ type
     end;
   end;
 
+  procedure exportarArchivoCelulares(var Celulares: ArchivoCelulares);
+  var carga: Text; c: rCelular;
+  begin
+    Reset(Celulares);
+    Assign(carga,'celulares.txt');
+    Rewrite(carga);
+    while not(Eof(Celulares)) do begin
+      Read(Celulares,c);
+      WriteLn(carga,c.cod,' ',c.precio:0:2,' ',c.marca);
+      WriteLn(carga,c.stockAct,' ',c.stockMin,' ',c.desc);
+      WriteLn(carga,c.nom);
+    end;
+    close(Celulares); close(carga);
+    WriteLn();
+    WriteLn('Archivo exportado exitosamente.');
+    WriteLn();
+  end;
+
 {programa principal}
 var
   Celulares: ArchivoCelulares;
@@ -124,11 +142,20 @@ begin
     WriteLn();
     Write('Ingrese la opcion deseada: '); Readln(opc);
     WriteLn();
+    if(opc = 1) then begin
+      WriteLn();
+      Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
+    end
+    else if(opc >= 2) and (opc <= 4) then begin
+      Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
+    end;
+    WriteLn();
+    Assign(Celulares,nomArch);
     case opc of
       1: crearArchivoCelulares(Celulares);
       2: celularesSinStock(Celulares);
-      // 3: buscarCelularesPorDesc(Celulares);
-      // 4: exportarArchivoCelulares(Celulares);
+      3: buscarCelularesPorDesc(Celulares);
+      4: exportarArchivoCelulares(Celulares);
     end;
   until (opc = 0);
   WriteLn('Programa finalizado.')
