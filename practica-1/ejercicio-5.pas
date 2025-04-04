@@ -80,6 +80,29 @@ type
     Close(Celulares);
   end;
 
+  procedure buscarCelularesPorDesc(var Celulares: ArchivoCelulares);
+  var c: rCelular; desc: String; alMenosUno: boolean;
+  begin
+    alMenosUno := false;
+    Reset(Celulares);
+    Write('Ingrese la descripcion del celular buscado.'); ReadLn(desc);
+    while not(Eof(Celulares)) do begin
+      Read(Celulares,c);
+      if(c.desc = desc) then begin
+        if not(alMenosUno) then alMenosUno := true;
+        WriteLn('---------');
+        WriteLn();
+        imprimirCelular(c);
+        WriteLn();
+      end;
+    end;
+    Close(Celulares);
+    if not(alMenosUno) then begin
+      WriteLn();
+      WriteLn('No se encontro ningun celulr con la descripcion proporcionda');
+    end;
+  end;
+
 {programa principal}
 var
   Celulares: ArchivoCelulares;
