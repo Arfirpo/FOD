@@ -40,17 +40,27 @@ type
 
   procedure leerCelular(var c: rCelular);
   begin
-	with c do begin
-		write('Ingrese nombre del celular: '); readln(nom);
-    if(c.nom <> corte) then begin
-      write('Ingrese codigo del celular: '); readln(cod);
-      write('Ingrese descripcion del celular: '); readln(desc);
-      write('Ingrese marca del celular: '); readln(marca);
-      write('Ingrese precio del celular: '); readln(precio);
-      write('Ingrese stock minimo del celular: '); readln(stockMin);
-      write('Ingrese stock actual del celular: '); readln(stockAct);
+	  with c do begin
+	  	write('Ingrese nombre del celular: '); readln(nom);
+      if(c.nom <> corte) then begin
+        write('Ingrese codigo del celular: '); readln(cod);
+        write('Ingrese descripcion del celular: '); readln(desc);
+        write('Ingrese marca del celular: '); readln(marca);
+        write('Ingrese precio del celular: '); readln(precio);
+        write('Ingrese stock minimo del celular: '); readln(stockMin);
+        write('Ingrese stock actual del celular: '); readln(stockAct);
+      end;
+	  end;
+  end;
+
+  procedure agregarCelulares(var Celulares: ArchivoCelulares);
+  var c: rCelular;
+  begin
+    Reset(Celulares);
+    leerCelular(c)
+    while (c.nom <> corte) then begin
+      
     end;
-	end;
   end;
 
   procedure crearArchivoCelulares(var Celulares: ArchivoCelulares);
