@@ -1,33 +1,54 @@
+
 {6. Agregar al menú del programa del ejercicio 5, opciones para:
 	a. Añadir uno o más celulares al final del archivo con sus datos ingresados por teclado.
 	b. Modificar el stock de un celular dado.
 	c. Exportar el contenido del archivo binario a un archivo de texto denominado: ”SinStock.txt”, con aquellos celulares que tengan stock 0.
 NOTA: Las búsquedas deben realizarse por nombre de celular.}
 
-program ejercicio_5_P1;
+Program ejercicio_5_P1;
 
-const corte = 'fin';
+Const corte = 'fin';
 
-type
-	str10 = string[10];
+Type 
+  str10 = string[10];
 
-	rCelular = record
-		cod: Integer;
-		desc: String;
-		marca: str10;
+  rCelular = Record
+    cod: Integer;
+    desc: String;
+    marca: str10;
     precio: Real;
-		nom: str10;
-		stockMin: Integer;
-		stockAct: Integer;
-	end;
+    nom: str10;
+    stockMin: Integer;
+    stockAct: Integer;
+  End;
 
-  ArchivoCelulares = file of rCelular;
+  ArchivoCelulares = file Of rCelular;
 
 {modulos}
 
-  procedure imprimirCelular(c: rCelular);
-  begin
-    with c do begin
+function buscarCelular(var Celulares: ArchivoCelulares; nombre: string): integer;
+var ok: boolean; c: rCelular; pos: integer;
+begin
+  pos := -1;
+  ok := false;
+  Reset(Celulares);
+  while (not(Eof(Celulares)) and not(ok)) do 
+    begin
+      Read(Celulares,c);
+      if (c.nom = nombre) then 
+        begin
+          ok := true;
+          pos := Filepos(Celulares) - 1;
+        end;
+    end;
+  Close(Celulares);
+  buscarCelular := pos;
+end;
+
+Procedure imprimirCelular(c: rCelular);
+Begin
+  With c Do
+    Begin
       WriteLn('Nombre: ',nom);
       WriteLn('Marca: ',marca);
       WriteLn('Precio: ',precio:0:2);
@@ -35,124 +56,199 @@ type
       WriteLn('Descripcion: ',desc);
       WriteLn('Stock Minimo: ',stockMin);
       WriteLn('Stock Actual: ',stockAct);
-    end;
-  end;
+    End;
+End;
 
-  procedure leerCelular(var c: rCelular);
-  begin
-	  with c do begin
-	  	write('Ingrese nombre del celular: '); readln(nom);
-      if(c.nom <> corte) then begin
-        write('Ingrese codigo del celular: '); readln(cod);
-        write('Ingrese descripcion del celular: '); readln(desc);
-        write('Ingrese marca del celular: '); readln(marca);
-        write('Ingrese precio del celular: '); readln(precio);
-        write('Ingrese stock minimo del celular: '); readln(stockMin);
-        write('Ingrese stock actual del celular: '); readln(stockAct);
-      end;
-	  end;
-  end;
+Procedure leerCelular(Var c: rCelular);
+Begin
+  With c Do
+    Begin
+      write('Ingrese nombre del celular: ');
+      readln(nom);
+      If (c.nom <> corte) Then
+        Begin
+          write('Ingrese codigo del celular: ');
+          readln(cod);
+          write('Ingrese descripcion del celular: ');
+          readln(desc);
+          write('Ingrese marca del celular: ');
+          readln(marca);
+          write('Ingrese precio del celular: ');
+          readln(precio);
+          write('Ingrese stock minimo del celular: ');
+          readln(stockMin);
+          write('Ingrese stock actual del celular: ');
+          readln(stockAct);
+        End;
+    End;
+End;
 
-  procedure agregarCelulares(var Celulares: ArchivoCelulares);
-  var c: rCelular;
-  begin
+procedure modificarStockAct(var Celulares: ArchivoCelulares);
+var nom: string; pos: integer; c: rCelular;
+begin
+  WriteLn();
+  Write('Ingrese nombre del celular buscado: '); Readln(nom);
+  pos := buscarCelular(Celulares,nom);
+  if (pos <> -1) then begin
     Reset(Celulares);
-    leerCelular(c)
-    while (c.nom <> corte) then begin
-      
+    Seek(Celulares,pos);
+    Read(Celulares,c);
+    WriteLn();
+    Write('Ingrese Stock Actual: '); Readln(c.stockAct);
+    Seek(Celulares, pos);
+    Write(Celulares,c);
+    WriteLn();
+    Writeln('Stock modificado exitosamente.');
+  end
+  else begin
+    WriteLn();
+    Writeln('El celular buscado no existe.');
+    WriteLn();
+  end;
+  close(Celulares);
+end;
+
+procedure copiarCelular(var carga: text; c: rCelular);
+begin
+  WriteLn(carga,c.cod,' ',c.precio:0:2,' ',c.marca);
+  WriteLn(carga,c.stockAct,' ',c.stockMin,' ',c.desc);
+  WriteLn(carga,c.nom);
+end;
+
+procedure exportarCelularesSinStock(var Celulares: ArchivoCelulares);
+var c: rCelular; carga: Text;
+begin
+  Reset(Celulares);
+  Assign(carga,'SinStock.txt');
+  Rewrite(carga);
+  WriteLn(carga, 'LISTADO DE CELULARES SIN STOCK');
+  WriteLn(carga, '============================');
+  WriteLn(carga);
+  while not(Eof(Celulares)) do begin
+    Read(Celulares,c);
+    if(c.stockAct = 0) then Begin
+      copiarCelular(carga,c);
     end;
   end;
+  WriteLn(carga);
+  WriteLn(carga, '============================');
+  Close(Celulares); Close(carga);
+  WriteLn();
+  WriteLn('Listado exportado exitosamente.');
+  WriteLn();
+end;
 
-  procedure crearArchivoCelulares(var Celulares: ArchivoCelulares);
-  var c: rCelular; nomArch:str10; carga: Text;
-  begin
-    WriteLn();
-    Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
-    Assign(Celulares,nomArch);
-    Rewrite(Celulares);
-    Assign(carga,'celulares.txt');
-    Reset(carga);
-    while not(Eof(carga)) do begin
+
+Procedure agregarCelulares(Var Celulares: ArchivoCelulares);
+Var c: rCelular;
+Begin
+  Reset(Celulares);
+  leerCelular(c);
+  While (c.nom <> corte) Do 
+    Begin
+      Seek(Celulares,filesize(Celulares));
+      Write(Celulares,c);
+      leerCelular(c);
+    End;
+End;
+
+Procedure crearArchivoCelulares(Var Celulares: ArchivoCelulares);
+Var c: rCelular; nomArch:str10; carga: Text;
+Begin
+  WriteLn();
+  Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
+  Assign(Celulares,nomArch);
+  Rewrite(Celulares);
+  Assign(carga,'celulares.txt');
+  Reset(carga);
+  While Not(Eof(carga)) Do
+    Begin
       ReadLn(carga,c.cod,c.precio,c.marca);
       ReadLn(carga,c.stockAct,c.stockMin,c.desc);
       ReadLn(carga,c.nom);
       write(Celulares,c);
-    end;
-    close(Celulares); close(carga);
-    WriteLn();
-    WriteLn('Archivo creado con exito.')
-  end;
+    End;
+  close(Celulares);
+  close(carga);
+  WriteLn();
+  WriteLn('Archivo creado con exito.');
+End;
 
-
-  procedure celularesSinStock(var Celulares: ArchivoCelulares);
-  var c: rCelular; nomArch:str10; 
-  begin
-    WriteLn();
-    Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
-    WriteLn();
-    Assign(Celulares,nomArch);
-    Reset(Celulares);
-    while not(Eof(Celulares)) do begin
+Procedure celularesSinStock(Var Celulares: ArchivoCelulares);
+Var c: rCelular; nomArch: str10;
+Begin
+  WriteLn();
+  Write('Ingrese el nombre del archivo a leer: ');
+  readln(nomArch);
+  WriteLn();
+  Assign(Celulares,nomArch);
+  Reset(Celulares);
+  While Not(Eof(Celulares)) Do
+    Begin
       Read(Celulares,c);
-      if(c.stockAct < c.stockMin) then begin
-        WriteLn('---------');
-        WriteLn();
-        imprimirCelular(c);
-        WriteLn();
-      end;
-    end;
-    WriteLn('---------');
-    WriteLn();
-    Close(Celulares);
-  end;
+      If (c.stockAct < c.stockMin) Then
+        Begin
+          WriteLn('---------');
+          WriteLn();
+          imprimirCelular(c);
+          WriteLn();
+        End;
+    End;
+  WriteLn('---------');
+  WriteLn();
+  Close(Celulares);
+End;
 
-  procedure buscarCelularesPorDesc(var Celulares: ArchivoCelulares);
-  var c: rCelular; desc: String; alMenosUno: boolean;
-  begin
-    alMenosUno := false;
-    Reset(Celulares);
-    Write('Ingrese la descripcion del celular buscado.'); ReadLn(desc);
-    while not(Eof(Celulares)) do begin
+Procedure buscarCelularesPorDesc(Var Celulares: ArchivoCelulares);
+Var c: rCelular; desc: String; alMenosUno: boolean;
+Begin
+  alMenosUno := false;
+  Reset(Celulares);
+  Write('Ingrese la descripcion del celular buscado.');
+  ReadLn(desc);
+  While Not(Eof(Celulares)) Do
+    Begin
       Read(Celulares,c);
-      if(c.desc = desc) then begin
-        if not(alMenosUno) then alMenosUno := true;
-        WriteLn('---------');
-        WriteLn();
-        imprimirCelular(c);
-        WriteLn();
-      end;
-    end;
-    Close(Celulares);
-    if not(alMenosUno) then begin
+      If (c.desc = desc) Then
+        Begin
+          If Not(alMenosUno) Then alMenosUno := true;
+          WriteLn('---------');
+          WriteLn();
+          imprimirCelular(c);
+          WriteLn();
+        End;
+    End;
+  Close(Celulares);
+  If Not(alMenosUno) Then
+    Begin
       WriteLn();
       WriteLn('No se encontro ningun celulr con la descripcion proporcionda');
-    end;
-  end;
+    End;
+End;
 
-  procedure exportarArchivoCelulares(var Celulares: ArchivoCelulares);
-  var carga: Text; c: rCelular;
-  begin
-    Reset(Celulares);
-    Assign(carga,'celulares.txt');
-    Rewrite(carga);
-    while not(Eof(Celulares)) do begin
+Procedure exportarArchivoCelulares(Var Celulares: ArchivoCelulares);
+Var carga: Text; c: rCelular;
+Begin
+  Reset(Celulares);
+  Assign(carga,'celulares.txt');
+  Rewrite(carga);
+  While Not(Eof(Celulares)) Do
+    Begin
       Read(Celulares,c);
-      WriteLn(carga,c.cod,' ',c.precio:0:2,' ',c.marca);
-      WriteLn(carga,c.stockAct,' ',c.stockMin,' ',c.desc);
-      WriteLn(carga,c.nom);
-    end;
-    close(Celulares); close(carga);
-    WriteLn();
-    WriteLn('Archivo exportado exitosamente.');
-    WriteLn();
-  end;
+      copiarCelular(carga,c);
+    End;
+  close(Celulares);
+  close(carga);
+  WriteLn();
+  WriteLn('Archivo exportado exitosamente.');
+  WriteLn();
+End;
 
 {programa principal}
-var
-  Celulares: ArchivoCelulares;
-  opc: Integer;
-begin
-  repeat
+Var 
+  Celulares: ArchivoCelulares; opc: Integer; nomArch: String;
+Begin
+  Repeat
     WriteLn();
     WriteLn('---- Tienda de Celulares ----');
     WriteLn();
@@ -165,24 +261,35 @@ begin
     WriteLn('2 --> Listar celulares sin stock.');
     WriteLn('3 --> Buscar celulares por palabra clave.');
     WriteLn('4 --> Exportar archivo en formato txt.');
+    WriteLn('5 --> Agregar celulares al archivo.');
+    WriteLn('6 --> Modificar stock celulares.');
+    WriteLn('7 --> Exportar lista de celulares sin stock (formato .txt).');
     WriteLn();
-    Write('Ingrese la opcion deseada: '); Readln(opc);
+    Write('Ingrese la opcion deseada: ');
+    Readln(opc);
     WriteLn();
-    if(opc = 1) then begin
-      WriteLn();
-      Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
-    end
-    else if(opc >= 2) and (opc <= 4) then begin
-      Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
-    end;
+    If (opc = 1) Then
+      Begin
+        WriteLn();
+        Write('Ingrese el nombre del archivo a crear: ');
+        readln(nomArch);
+      End
+    Else If (opc >= 2) And (opc <= 7) Then
+      Begin
+        Write('Ingrese el nombre del archivo a leer: ');
+        readln(nomArch);
+      End;
     WriteLn();
     Assign(Celulares,nomArch);
-    case opc of
+    Case opc Of 
       1: crearArchivoCelulares(Celulares);
       2: celularesSinStock(Celulares);
       3: buscarCelularesPorDesc(Celulares);
       4: exportarArchivoCelulares(Celulares);
-    end;
-  until (opc = 0);
+      5: agregarCelulares(Celulares);
+      6: modificarStockAct(Celulares);
+      7: exportarCelularesSinStock(Celulares);
+    End;
+  Until (opc = 0);
   WriteLn('Programa finalizado.')
 End.
