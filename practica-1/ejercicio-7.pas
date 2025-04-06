@@ -5,12 +5,64 @@ NOTA: El nombre del archivo binario es proporcionado por el usuario desde el tec
 
 program ejercicio_7_P1;
 
+{ Sección de tipos }
 type
-	{Tipos}
+  str15 = string[15];
+  Novela = record
+    cod: integer;
+    nom: str15;
+    gen: str15;
+    precio: real;
+  end;
 
-var
-	{Variables}
+  ArchivoNovelas = file of Novela;
 
+{ Modulos }
+
+procedure crearArchivo(var Novelas: ArchivoNovelas);
+var n: Novela; carga: Text;
 begin
-	{Programa principal}
+  Rewrite(Novelas);
+  Assign(carga,'novelas.txt');
+  Reset(carga);
+  while not(Eof(carga)) do
+  begin
+    Readln(carga,n.cod,n.precio,n.gen);
+    Readln(carga,n.nom);
+    Write(Novelas,n);
+  end;
+  Writeln('Archivo creado exitosamente.');
+  Writeln();
+  Close(Novelas); Close(carga);
+end;
+
+// procedure actualizarArchivo(var Novelas: ArchivoNovelas);
+// var
+// begin
+// end;
+
+{ Programa Principal}
+var novelas: ArchivoNovelas; opc: integer; nomArch: string;
+begin
+  repeat
+    Writeln();
+    Writeln('------ Menu Principal ------');
+    Writeln();
+    Writeln('----> Opciones: ');
+    Writeln();
+    Writeln('1.----> Crear archivo de novelas.');
+    Writeln('2.----> Actualizar archivo de novelas.');
+    Writeln();
+    Write('Ingrese la opcion elegida -0 para finalizar-: '); Readln(opc);
+    Writeln();
+    if(opc >= 1) and (opc <= 2) then begin
+      Write('Ingrese el nombre del achivo a crear/leer: '); Readln(nomArch);
+      Assign(Novelas,nomArch + '.bin');
+      Writeln();
+    end;
+    case opc of
+      1: crearArchivo(Novelas);
+      // 2: actualizarArchivo(Novelas);
+    end;
+  until(opc = 0);
 end.
