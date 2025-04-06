@@ -61,7 +61,7 @@ begin
   write('Ingrese el nombre del archivo: ');
   readln(nombre);
   writeln();
-  Assign(Empleados,nombre);
+  Assign(Empleados,nombre + '.bin');
   rewrite(Empleados);
   cargarArchivoEmpleados(Empleados);
   close(Empleados);
@@ -246,7 +246,7 @@ var
 begin
   writeln();
   write('Ingrese el nombre del archivo a leer: '); readln(nombre);
-  Assign(Empleados,nombre);
+  Assign(Empleados,nombre + '.bin');
   writeln();
   writeln('-- Archivo de ',nombre,' --');
   writeln();

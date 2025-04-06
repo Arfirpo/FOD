@@ -157,7 +157,7 @@ Var c: rCelular; nomArch:str10; carga: Text;
 Begin
   WriteLn();
   Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
-  Assign(Celulares,nomArch);
+  Assign(Celulares,nomArch + '.bin');
   Rewrite(Celulares);
   Assign(carga,'celulares.txt');
   Reset(carga);
@@ -181,7 +181,7 @@ Begin
   Write('Ingrese el nombre del archivo a leer: ');
   readln(nomArch);
   WriteLn();
-  Assign(Celulares,nomArch);
+  Assign(Celulares,nomArch + '.bin');
   Reset(Celulares);
   While Not(Eof(Celulares)) Do
     Begin
@@ -280,7 +280,7 @@ Begin
         readln(nomArch);
       End;
     WriteLn();
-    Assign(Celulares,nomArch);
+    Assign(Celulares,nomArch + '.bin');
     Case opc Of 
       1: crearArchivoCelulares(Celulares);
       2: celularesSinStock(Celulares);

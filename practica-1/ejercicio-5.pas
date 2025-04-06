@@ -30,7 +30,7 @@ type
   begin
     WriteLn();
     Write('Ingrese el nombre del archivo a crear: '); readln(nomArch);
-    Assign(Celulares,nomArch);
+    Assign(Celulares,nomArch + '.bin');
     Rewrite(Celulares);
     Assign(carga,'celulares.txt');
     Reset(carga);
@@ -64,7 +64,7 @@ type
     WriteLn();
     Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
     WriteLn();
-    Assign(Celulares,nomArch);
+    Assign(Celulares,nomArch + '.bin');
     Reset(Celulares);
     while not(Eof(Celulares)) do begin
       Read(Celulares,c);
@@ -150,7 +150,7 @@ begin
       Write('Ingrese el nombre del archivo a leer: '); readln(nomArch);
     end;
     WriteLn();
-    Assign(Celulares,nomArch);
+    Assign(Celulares,nomArch + '.bin');
     case opc of
       1: crearArchivoCelulares(Celulares);
       2: celularesSinStock(Celulares);

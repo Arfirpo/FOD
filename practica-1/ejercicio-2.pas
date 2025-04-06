@@ -45,6 +45,6 @@ Var
 Begin
   write('Ingrese el nombre del archivo a buscar: ');
   readln(arch);
-  Assign(Enteros,arch);
+  Assign(Enteros,arch + '.bin');
   leerArchivo(Enteros);
 End.

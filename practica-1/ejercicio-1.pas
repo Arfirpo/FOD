@@ -25,7 +25,7 @@ Var
 Begin
   write('Ingrese un nombre de archivo: ');
   readln(nombre);
-  assign(arch, nombre);
+  assign(arch, nombre + '.bin');
   rewrite(arch);
   agregarNumeros(arch);
 End.
