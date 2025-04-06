@@ -19,6 +19,23 @@ type
 
 { Modulos }
 
+function buscarNovela(var Novelas: ArchivoNovelas; cod: integer): integer;
+var pos: integer; n: Novela; ok: Boolean;
+begin
+  pos := -1;
+  ok := false;
+  Reset(Novelas);
+  while not(Eof(Novelas)) and not(ok) do begin
+    Read(Novelas,n);
+    if n.cod = cod then begin
+      ok := true;
+      pos := FilePos(Novelas) - 1;
+    end;
+  end;
+  Close(Novelas);
+  buscarNovela := pos;
+end;
+
 procedure crearArchivo(var Novelas: ArchivoNovelas);
 var n: Novela; carga: Text;
 begin
