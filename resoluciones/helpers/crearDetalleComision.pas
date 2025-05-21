@@ -1,4 +1,4 @@
-program crearDetalle;
+program crearDetalleComision;
 
 type
 	str10 = string[10];
@@ -71,6 +71,6 @@ begin
     insertarOrdenado(pri, c);
     leerComision(c);
   end;
-  cargarArchivoDetalle(det, pri);
+  cargarArchivoDetalle(det1, pri);
 end.
 
