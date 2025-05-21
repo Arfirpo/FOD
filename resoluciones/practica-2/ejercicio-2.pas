@@ -21,29 +21,77 @@ type
 		stock_act: int;
 		stock_min: int;
 	end;
-	maestro = file of producto;
-	detalle = file of venta;
+	ArchivoMaestro = file of producto;
+	ArchivoDetalle = file of venta;
+
+
+{modulos}
+procedure actualizarArchivoMaestro(var maestro: ArchivoMaestro; var detalle: ArchivoDetalle);
+var
+	regM: producto;
+	regD: venta;
+	tot_u_vendidas: integer;
+begin
+	reset(maestro);
+	reset(detalle);
+	while(not(Eof(detalle))) do begin
+		read(maestro,regM);
+		read(detalle,regD);
+		while(regM.cod_prod <> regD.cod_prod) do
+			read(maestro,regM);
+		tot_u_vendidas := 0;
+		while (not(Eof(detalle))) and (regM.cod_prod = regD.cod_prod) do begin
+			tot_u_vendidas := tot_u_vendidas + regD.u_vendidas;
+			read(detalle,regD);
+		end;
+		regM.stock_act := regM.stock_act - tot_u_vendidas;
+		seek(maestro,filepos(maestro) - 1);
+		write(maestro,regM);
+	end;
+	close(detalle);
+	close(maestro);
+end;
+
+procedure exportarProductosConStockBajo(var maestro: ArchivoMaestro);
+
+	procedure copiarProducto(var carga: text; p: producto);
+	begin
+		WriteLn(carga,p.nom);
+		WriteLn(carga,p.cod_prod,' ',p.precio:0:2);
+		WriteLn(carga,p.stock_act,' ',p.stock_min);
+	end;
+
+var p: producto; carga: Text;
+begin
+  Reset(maestro);
+  Assign(carga,'StockMinimo.txt');
+  Rewrite(carga);
+  WriteLn(carga, 'LISTADO DE PRODUCTOS SIN STOCK');
+  WriteLn(carga, '============================');
+  WriteLn(carga);
+  while not(Eof(maestro)) do begin
+    Read(maestro,p);
+    if(p.stock_act < p.stock_minimo) then
+      copiarProducto(carga,p);
+  end;
+  WriteLn(carga);
+  WriteLn(carga, '============================');
+  Close(maestro); Close(carga);
+  WriteLn();
+  WriteLn('Listado exportado exitosamente.');
+  WriteLn();
+end;
+
 
 {Programa Principal}
 var
 	regM: producto;
 	regD: venta;
-	mae1: maestro;
-	det1: detalle;
+	mae1: ArchivoMaestro;
+	det1: ArchivoDetalle;
 begin
 	Assign(mae1,'maestro');
 	Assign(det1,'detalle');
-	reset(mae1);
-	reset(det1);
-	while(not(Eof(det1))) do begin
-		read(mae1,regM);
-		read(det1,regD);
-		while(regM.cod_prod <> regD.cod_prod) do
-			read(mae1,regM);
-		regM.stock_act = regM.stock_act - regD.u_vendidas;
-		seek(mae1,filepos(mae1) - 1);
-		write(mae1,regM);		
-	end;
-	close(det1);
-	close(mae1);
+	actualizarArchivoMaestro(mae1,det1);
+	exportarProductosConStockBajo(mae1);
 End.
