@@ -22,11 +22,11 @@ type
 	ArchivoMaestro = file of Producto;
 	ArchivoDetalle = file of Venta;
 
-	vectorArchivoDetalle= array [1..dimF] of;
-	vectorRegistroVenta= array [1..dimF] of;
+	vectorArchivoDetalle= array [1..dimF] of ArchivoDetalle;
+	vectorRegistroVenta= array [1..dimF] of Venta;
 
 {modulos}
-procedure leer(var det: ArchivoDetalle; dato: Venta);
+procedure leer(var det: ArchivoDetalle; var dato: Venta);
 begin
 	if(not(Eof(det))) then
 		read(det,dato);
@@ -53,11 +53,32 @@ end;
 
 procedure actualizarMaestro(var maestro: ArchivoMaestro; vDetalles: vectorArchivoDetalle);
 var
+	i,codAct:integer;
 	minRegD: Venta;
+	regM: Producto;
 	totVendido: integer;
 	vRegistros: vectorRegistroVenta;
 begin
-	
+	read(maestro,regM);
+	for i := 1 to dimF do
+		leer(vDetalles[i],vRegistros[i]);
+	minimo(vDetalles,vRegistros,minRegD);
+	while(minRegD <> valorAlto) do begin
+		codAct := minRegD.codProd;
+		totVendido := 0;
+		while (minRegD.codProd = codAct) do begin
+			totVendido := totVendido + minRegD.uVendidas;
+			minimo(vDetalles,vRegistros,minRegD);
+		end;
+		while(regM.codProd <> codAct) do
+			read(maestro,regM);
+		regM.stockDisp := regM.stockDisp - totVendido;
+		Seek(maestro,filepos(maestro) - 1);
+		write(maestro,regM);
+		if(not(Eof(maestro))) then
+			read(maestro,regM);
+	end;
+		
 end;
 
 
@@ -65,6 +86,7 @@ end;
 var
 	i: integer;
 	mae1: ArchivoMaestro;
+	vD: vectorArchivoDetalle;
 
 begin
 	Assign(mae1,'maestro');
