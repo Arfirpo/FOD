@@ -67,7 +67,7 @@ begin
   for i := 1 to dimF do begin
     leer(v[i],vDet[i]);
   end;
-  minimo();
+  minimo(vDet);
 end;
 
 
