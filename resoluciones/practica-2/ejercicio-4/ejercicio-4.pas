@@ -3,7 +3,7 @@ Program ejercicio_4_P2;
 
 Const 
   valorAlto = 9999;
-  dimF = 30;
+  dimF = 5;
 
 Type 
   str10 = string[10];
@@ -58,8 +58,7 @@ End;
       End;
   End;
 
-  Procedure insertarOrdenado(Var l: lProductos; p: Producto);
-  
+  Procedure insertarOrdenado(Var l: lProductos; p: Producto); 
   Var 
     nue,ant,act: lProductos;
   Begin
@@ -96,12 +95,12 @@ Begin
   pri := Nil;
   Rewrite(maestro);
   leerProducto(p);
-  While (p.codProd <> -1) Do
-    Begin
-      insertarOrdenado(pri,p);
-      leerProducto(p);
-    End;
+  While (p.codProd <> -1) Do Begin
+    insertarOrdenado(pri,p);
+    leerProducto(p);
+  End;
   cargarArchivoMaestro(maestro,pri);
+  close(maestro);
   writeln('Archivo Maestro creado exitosamente');
 End;
 
@@ -131,7 +130,6 @@ procedure generarVectorDetalles(var v: vectorArchivoDetalle);
     End;
 
     Procedure insertarOrdenado(Var l: lVentas; v: Venta);
-
     Var 
       nue,ant,act: lVentas;
     Begin
@@ -160,7 +158,7 @@ procedure generarVectorDetalles(var v: vectorArchivoDetalle);
           l := l^.sig;
         End;
     End;
-
+  
   Var 
     v: Venta;
     pri: lVentas;
@@ -174,6 +172,7 @@ procedure generarVectorDetalles(var v: vectorArchivoDetalle);
         leerVenta(v);
       End;
     cargarArchivoDetalle(detalle,pri);
+    close(detalle);
     writeln('Archivo detalle creado exitosamente');
   End;
 
@@ -183,7 +182,7 @@ var
 begin
   for i := 1 to dimF do begin
     Str(i, strI); 
-    nombre := 'detalle' + strI;
+    nombre := 'detalle' + strI + '.bin';
     Assign(v[i], nombre);
     crearArchivoDetalle(v[i]);
   end;
@@ -248,8 +247,61 @@ Begin
     If (Not(Eof(maestro))) Then
       read(maestro,regM);
   End;
+  for i := 1 to dimF do
+  begin
+    close(vDetalles[i]);
+  end;
   writeln('Archivo maestro actualizado.');
 End;
+
+procedure generarReporteStock(var maestro: ArchivoMaestro);
+var
+  carga: Text;
+  p: Producto;
+begin
+  Assign(carga,'reporteStock.txt');
+  Reset(maestro);
+  Rewrite(carga);
+  writeln(carga,'****REPORTE PRODUCTOS PARA REPONER STOCK****');
+  writeln(carga,'======================================================');
+  while(not(Eof(maestro))) do begin
+    read(maestro,p);
+    if(p.stockDisp < p.stockMin) then begin      
+      writeln(carga,'Producto: ',p.nom,' - Codigo: ',p.codProd,' - Stock Actual: ',p.stockDisp,'.');
+      writeln(carga,'-----------------------------------------------------');
+    end;
+  end;
+  writeln(carga,'======================================================');
+  writeln('reporte generado exitosamente.');
+  close(maestro);
+  close(carga);
+end;
+
+procedure generarReporteDetalle(var detalle: ArchivoDetalle; indice: integer);
+var
+  carga: Text;
+  v: Venta;
+  strI,nombre,nombre2: string;
+begin
+  Str(indice,strI);
+  nombre := 'detalle' + strI + '.bin';
+  Assign(detalle,nombre);
+  nombre2 := 'detalle' + strI + '.txt';
+  Assign(carga,nombre2);
+  Reset(detalle);
+  Rewrite(carga);
+  writeln(carga,'****REPORTE DETALLE DE VENTAS****');
+  writeln(carga,'======================================================');
+  while(not(Eof(detalle))) do begin
+    read(detalle,v);
+    writeln(carga,'Codigo de Producto: ',v.codProd,' - Unidades Vendidas: ',v.uVendidas,'.');
+    writeln(carga,'-----------------------------------------------------');
+  end;
+  writeln(carga,'======================================================');
+  writeln('reporte generado exitosamente.');
+  close(detalle);
+  close(carga);
+end;
 
 {Programa Principal}
 
@@ -261,31 +313,33 @@ Var
   nombre,strI: string;
 
 Begin
+  Assign(mae1,'maestro.bin');
   repeat
     writeln('***MENU DE OPCIONES***');
     writeln('1.- Crear Archivo Maestro de productos.');
     writeln('2.- Generar archivos detalle.');
     writeln('3.- Actualizar archivo Maestro.');
+    writeln('4.- Generar reporte de stock.');
+    writeln('5.- Generar reporte de ventas.');
     writeln('(-1) - Finalizar Programa.');
     Write('Opcion elegida: '); readln(num);
     case num of
       1: begin
-          Assign(mae1,'maestro');
           crearArchivoMaestro(mae1);
         end;
       2: generarVectorDetalles(vD);
       3: begin
-          Assign(mae1,'maestro');
           Reset(mae1);
-          For i := 1 To dimF Do
-            Begin
-              str(i,strI);
-              nombre := 'detalle' + strI;
-              Assign(vD[i],nombre);
-              Reset(vD[i]);
-            End;
+          For i := 1 To dimF Do Begin
+            str(i,strI);
+            nombre := 'detalle' + strI + '.bin';
+            Assign(vD[i],nombre);
+            Reset(vD[i]);
+          End;
           actualizarMaestro(mae1,vD);
-      end;
+        end;
+      4: generarReporteStock(mae1);
+      5: for i := 1 to dimF do generarReporteDetalle(vD[i],i);
     end;
   until (num = -1);
   Writeln('Programa finalizado');
