@@ -16,7 +16,7 @@ type
     finalesAprob: integer;
   end;
 
-  Curso = registro
+  Curso = record
     codAlu: integer;
     codMat: integer;
     anioCursada: str4;
@@ -36,10 +36,18 @@ type
 
   {modulos}
 
-  procedure leer(var maestro: ArchivoMaestro; var dato: Alumno);
+  procedure leerCurso(var detalleC: ArchivoDetalleCursadas; var dato: Curso);
   begin
-    if(not(Eof(demaestrotC))) then
-      read(maestro,dato)
+    if(not(Eof(detalleC))) then
+      read(detalleC,dato)
+    else
+      dato.codAlu := valorAlto;
+  end;
+
+  procedure leerFinal(var detalleF: ArchivoDetalleFinales; var dato: Final);
+  begin
+    if(not(Eof(detalleF))) then
+      read(detalleF,dato)
     else
       dato.codAlu := valorAlto;
   end;
@@ -49,23 +57,46 @@ type
     regM: Alumno;
     regC: Curso;
     regF: Final;
-    aluAct: integer;
+    aluAct,matAct: integer;
+    cantCursadasApro,cantFinalesAprob: integer;
   begin
     Reset(maestro);
     Reset(detC);
     Reset(detF);
-    leer(maestro,regM);
-    while(regM.codAlu <> valorAlto) do begin
+    leerCurso(detC,regC);
+    leerFinal(detF,regF);
+    while(not(Eof(maestro))) do begin
+      read(maestro,regM);
       aluAct := regM.codAlu;
-      read(detC,regC);
-      while (regC.codAlu <> aluAct) do
-        read(detC,regC);
-      read(detF,regF);
-      while (regF.codAlu <> aluAct) do
-        read(detF,regF);
-    end;
-  end;
 
+      cantCursadasApro := 0;
+      while (regC.codAlu <> valorAlto) and (regC.codAlu = aluAct) do begin
+        matAct := regC.codMat;
+        while (regC.codAlu <> valorAlto) and (regC.codAlu = aluAct) and (regC.codMat = matAct) do begin
+          if(regC.resultado) then cantCursadasApro := cantCursadasApro + 1;
+          leerCurso(detC,regC);
+        end;
+      end;
+
+      cantFinalesAprob := 0;
+      while (regF.codAlu <> valorAlto) and (regF.codAlu = aluAct) do begin
+        matAct := regF.codMat;
+        while (regF.codAlu <> valorAlto) and (regF.codAlu = aluAct) and (regF.codMat = matAct) do begin
+          if(regF.nota >= 4) then cantFinalesAprob := cantFinalesAprob + 1;
+          leerFinal(detF,regF);
+        end;
+      end;
+
+      regM.cursadasAprob := regM.cursadasAprob + cantCursadasApro;
+      regM.finalesAprob := regM.finalesAprob + cantFinalesAprob;
+
+      Seek(maestro,filepos(maestro) - 1);
+      write(maestro,regM);
+    end;
+    close(maestro);
+    close(detC);
+    close(detF);
+  end;
   {Programa Principal}
   var
     maestro: ArchivoMaestro;
