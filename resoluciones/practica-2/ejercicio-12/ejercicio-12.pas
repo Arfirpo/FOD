@@ -40,10 +40,38 @@ begin
 	while (regM.fecha.anio <> valorAlto) and (regM.fecha.anio <> anio) do
 		leerMaestro(maestro,regM);
 
-	if not(regM.fecha.anio <> valorAlto) and not(regM.fecha.anio = anio) then
-		writeln('El anio no fue encontrado.');
-	else
+	if (regM.fecha.anio <> valorAlto) and (regM.fecha.anio = anio) then begin
+		writeln('Anio ',anio);
 
+		totAnio := 0;
+		while (regM.fecha.anio = anio) do begin
+			mesAct := regM.fecha.mes;
+			writeln('   Mes ',mesAct);
+
+
+			totMes := 0;
+			while (regM.fecha.anio = anio) and (regM.fecha.mes = mesAct) do begin
+				diaAct := regM.fecha.dia;
+				writeln('       Dia ',diaAct);
+
+
+				totDia := 0;
+				while (regM.fecha.anio = anio) and (regM.fecha.mes = mesAct) and (regM.fecha.dia = diaAct) do begin
+					usuarioAct := regM.idUsuario;
+					
+
+					while (regM.fecha.anio = anio) and (regM.fecha.mes = mesAct) and (regM.fecha.dia = diaAct) and (regM.idUsuario = usuarioAct) do begin
+						
+					end;
+				end;
+			end;
+		end;
+		
+		
+	end
+	else
+		writeln('El anio no fue encontrado.');
+	close(maestro);
 end;
 
 
