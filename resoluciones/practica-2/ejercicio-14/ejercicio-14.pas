@@ -110,7 +110,6 @@ begin
 	close(det2);
 end;
 
-
 {Programa principal}
 var
 	mae1: ArchivoMaestro;
