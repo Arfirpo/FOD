@@ -39,13 +39,6 @@ type
   VectorDeRegistrosDetalle = array [1..dimF] of Venta;
 
 {modulos}
-procedure leerMaestro(var maestro: ArchivoMaestro; var dato: Emision);
-begin
-  if(not(Eof(maestro))) then
-    read(maestro,dato)
-  else
-    dato.fecha := valorAlto;
-end;
 
 procedure leerDetalle(var detalle: ArchivoDetalle; var dato: Venta);
 begin
