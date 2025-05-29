@@ -10,7 +10,7 @@ type
 		codMun: integer;
 		nomMun: str10;
 		codHosp: integer;
-		nomHosp: integer;
+		nomHosp: str10;
 		fecha: str10;
 		cantPositivos: integer;
 	end;
@@ -47,55 +47,59 @@ procedure generarInforme(var maestro: ArchivoMaestro);
 var
 	regM: Maestro;
 	locAct,munAct,hospAct: integer;
+	nomLocAct,nomMunAct,nomHospAct: str10;
 	casos: Casos;
 	carga: Text;
 begin
 	Reset(maestro);
-	Assign(carga,'reporte.txt');
+	Assign(carga,'municipiosMas1500Casos.txt');
 	Rewrite(carga);
 	leerMaestro(maestro,regM);
-
 	casos.provincia := 0;
 	while (regM.codLoc <> valoralto) do begin
 		locAct := regM.codLoc;
+		nomLocAct := regM.nomLoc;
 
 		WriteLn('Localidad: ',regM.nomLoc);
 
 		casos.localidad := 0;
 		while (regM.codLoc = locAct) do begin
 			munAct := regM.codMun;
+			nomMunAct := regM.nomMun;
 
-			WriteLn('   Municipio: ',regM.nomMun);
+			WriteLn('   Municipio: ',nomMunAct);
 
 			casos.municipio := 0;
 			while (regM.codLoc = locAct) and (regM.codMun = munAct) do begin
 				hospAct := regM.codHosp;
-
-				Write('       Hospital: ',regM.nomHosp);
+				nomHospAct := regM.nomHosp;
 				
 				casos.hospital := 0;
 				while (regM.codLoc = locAct) and (regM.codMun = munAct) and (regM.codHosp = hospAct) do begin
 					casos.hospital := casos.hospital + regM.cantPositivos;
-					leerMaestro(maestro,)
+					leerMaestro(maestro,regM);
 				end;
 
-				Write('      Cantidad de casos Hospital: ',casos.hospital);
+				Writeln('Hospital: ',nomHospAct,'      Cantidad de casos Hospital: ',casos.hospital);
 
 				casos.municipio := casos.municipio + casos.hospital;
 
 			end;
-			WriteLn('Cantidad de Casos Municipio: ',casos.municipio);
-			Write(carga,);
+			WriteLn('Municipio: ',nomMunAct,' Cantidad de Casos: ',casos.municipio);
+			if(casos.municipio > 1500) then
+				writeln(carga,'Localidad: ',nomLocAct,' | Municipio: ',nomMunAct,' | Cantidad de Casos: ',casos.municipio);
+
 			casos.localidad := casos.localidad + casos.municipio;
 
 		end;
-		WriteLn('Cantidad de Casos Localidad: ',casos.localidad);
+		WriteLn('Localidad: ',nomLocAct,' Cantidad de Casos: ',casos.localidad);
 		WriteLn('-----------------------------------------------');
 
 		casos.provincia := casos.provincia + casos.localidad;
 	end;
 	WriteLn('Cantidad de Casos totales - Provincia: ',casos.provincia);
 	close(maestro);
+	close(carga);
 end;
 
 {Programa principal}
