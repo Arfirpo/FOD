@@ -1,6 +1,8 @@
 Program ejercicio_1_P3;
 
-const corte = 'fin';
+const 
+  corte = 'fin';
+  valorAlto = 9999;
 
 Type 
   str20 = string[20];
@@ -61,22 +63,38 @@ begin
   writeln('Archivo creado exitosamente');
 end;
 
+procedure leer(var empleados: ArchivoEmpleados; var dato: Empleado);
+begin
+  if(not(Eof(empleados))) then
+    read(empleados,dato)
+  else
+    dato.nro := valorAlto;
+end;
+
 procedure procesarArchivoEmpleados();
 
   procedure eliminarEmpleado(var empleados: ArchivoEmpleados);
   var 
-      pos: integer;
-      emp: Empleado;
+    nroBuscado,pos: integer;
+    emp: Empleado;
   begin
+    pos := -1;
     Reset(empleados);
-    Write('Ingrese posicion del empleado a eliminar: '); ReadLn(pos);
-    if (pos >= 0) and (pos <= FileSize(empleados) - 1) then begin
+    leer(empleados,emp);
+    Write('Ingrese nro del empleado a eliminar: '); ReadLn(nroBuscado);
+    while(emp.nro <> valorAlto) and (emp.nro <> nro) do 
+      leer(empleados,emp);
+    if (emp.nro <> valorAlto) and (emp.nro = nro) then begin
+      pos := FilePos(empleados) - 1;
       Seek(empleados,FileSize(empleados) - 1);
-      Read(empleados,emp);
+      read(empleados,emp);
       Seek(empleados,pos);
-      Write(empleados,emp);
+      write(empleados,emp);
       Truncate(empleados);
-    end;
+      WriteLn('Empleado eliminado exiosamente.')
+    end
+    else
+      WriteLn('Empleado no encontrado.');
     Close(empleados);
   end;
 
