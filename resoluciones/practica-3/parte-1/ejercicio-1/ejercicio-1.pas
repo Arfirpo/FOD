@@ -63,6 +63,23 @@ end;
 
 procedure procesarArchivoEmpleados();
 
+  procedure eliminarEmpleado(var empleados: ArchivoEmpleados);
+  var 
+      pos: integer;
+      emp: Empleado;
+  begin
+    Reset(empleados);
+    Write('Ingrese posicion del empleado a eliminar: '); ReadLn(pos);
+    if (pos >= 0) and (pos <= FileSize(empleados) - 1) then begin
+      Seek(empleados,FileSize(empleados) - 1);
+      Read(empleados,emp);
+      Seek(empleados,pos);
+      Write(empleados,emp);
+      Truncate(empleados);
+    end;
+    Close(empleados);
+  end;
+
   procedure imprimirEmpleado(e: Empleado);
   begin
     writeln('Nombre: ',e.nombre);
@@ -255,12 +272,13 @@ begin
     writeln('5.- Actualizar edad de un empleado.');
     writeln('6.- Exportar en formato .txt.');
     writeln('7.- Exportar en formato .txt. empleados sin dni.');
+    writeln('8.- Dar de baja un empleado.');
     writeln('0.- Salir.');
     writeln();
     repeat
       write('Opcion elegida: '); readln(opc);
       writeln();
-      if (opc < 0) or (opc > 7) then
+      if (opc < 0) or (opc > 8) then
       begin
         writeln('Opcion incorrecta. Intente nuevamente. -0 para salir-');
         writeln();
@@ -277,6 +295,7 @@ begin
       5: actualizarEdadEmpleado(Empleados);
       6: exportarTextoEmpleados(Empleados);
       7: exportarTextoEmpleadosSinDni(Empleados);
+      8: eliminarEmpleado(Empleados);
       0: break;
     end;
   until false;
