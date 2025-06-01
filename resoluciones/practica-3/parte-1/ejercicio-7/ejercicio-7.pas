@@ -66,25 +66,52 @@ end;
 
 procedure bajaFisica(var aves: ArchivoMaestro);
 var
-  a: AveEPDE;
-  posElim: integer;
+  a,ultimo: AveEPDE;
+  posElim,posUltimo: integer;
 begin
   Reset(aves);
-  leer(aves,a);
-  while (a.codAve <> valorAlto) do begin
+  while filePos(aves) < FileSize(aves) do begin
+    posElim := FilePos(aves);
+    read(aves,a);
     if(a.nomEspecie[1] = '@') then begin
-      posElim := FilePos(aves) - 1;
-      Seek(aves,FileSize(aves) - 1);
-      Read(aves,a);
-      Seek(aves,posElim);
-      write(aves,a);
-      truncate(aves);
-    end;    
-    leer(aves,a);
+      repeat
+        posUltimo := fileSize(aves) - 1;
+        Seek(aves,posUltimo);
+        Read(aves,ultimo);
+        Truncate(aves);
+      until (ultimo.nomEspecie[1] <> '@') or (FileSize(aves) <= posElim);
+      if(FileSize(aves) > posElim) then begin
+        Seek(aves, posElim);
+        Write(aves,ultimo);
+        Seek(aves,posElim);
+      end;
+    end;
   end;
   Close(aves);
 end;
 
+procedure bajaFisicaV2(var aves: ArchivoMaestro);
+var
+  posLectura,porEscritura: integer;
+  a: AveEPDE;
+begin
+  Reset(aves);
+  posLectura := 0;
+  porEscritura := 0;
+  while (posLectura < FileSize(aves)) do begin
+    Seek(aves,posLectura);
+    Read(aves,a);
+    if(a.nomEspecie[1] <> '@') then begin
+      Seek(aves,porEscritura);
+      Write(aves,a);
+      porEscritura := porEscritura + 1;
+    end;
+    posLectura := posLectura + 1;
+  end;
+  Seek(aves,porEscritura);
+  Truncate(aves);
+  Close(aves);
+end;
 
 {Programa Principal}
 var
@@ -92,5 +119,6 @@ var
 begin
   Assign(aves,'avesEPDE.bin');
   bajaLogica(aves);
-  bajaFisica(aves); //todavia no implementado
+  bajaFisica(aves);
+  bajaFisicaV2(aves);
 End.
