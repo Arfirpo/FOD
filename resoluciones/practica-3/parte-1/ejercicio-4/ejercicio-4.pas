@@ -46,12 +46,31 @@ begin
   Close(flores);
 end;
 
+procedure listarContenido(var flores: tArchFlores);
+var 
+  f: reg_flor;
+begin
+  Reset(flores);
+  leer(flores,f);
+  WriteLn('**** LISTADO DE FLORES ****');
+  WriteLn('===========================');
+  while (f.codigo <> valorAlto) do begin
+    if not(f.codigo < 1) then begin
+      WriteLn('Flor: ',f.nombre,' | Codigo: ',f.codigo,'.');
+      WriteLn('---------------------');
+    end;
+    leer(flores,f);
+  end;
+  WriteLn('===========================');
+  Close(flores);
+end;
+
 
 {Programa Principal}
 var
   flores: tArchFlores;
   nom: String;
-  nomFlor: strng[45];
+  nomFlor: string[45];
   cod: integer;
   f: reg_flor;
 Begin
@@ -59,6 +78,7 @@ Begin
   Readln(nom);
   nom := nom + '.bin';
   Assign(flores,nom);
+  Rewrite(flores);
   f.codigo := 0; //codigo cabecera
   write(flores,f); //guardo la cabecera
   Write('Ingresar codigo de flor: '); Readln(cod);
