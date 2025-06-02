@@ -32,10 +32,8 @@ end;
 
 procedure actuaizarMaestro(var maestro: ArchivoMaestro; var detalle: ArchivoDetalle);
 
-  function BuscarRegM(var maestro: ArchivoMaestro; codProd: integer): integer;
+  procedure BuscarRegM(var maestro: ArchivoMaestro; codProd: integer; var regM: Producto; var pos: integer);
   var
-    regM: Producto;
-    pos: integer;
     encontre: Boolean;
   begin
     pos := -1;
@@ -48,7 +46,8 @@ procedure actuaizarMaestro(var maestro: ArchivoMaestro; var detalle: ArchivoDeta
         encontre := true;
       end;
     end;
-    BuscarRegM := pos;
+    if not(encontre) then
+      regM.codProd := -1;
   end;
 
 var
@@ -61,17 +60,13 @@ begin
   leerDetalle(detalle,regD);
 
   while (regD.codProd <> valorAlto) do begin
-    pos := BuscarRegM(maestro,regD.codProd);
+    BuscarRegM(maestro,regD.codProd,regM,pos);
     if(pos <> -1) then begin
-      Seek(maestro,pos);
-      Read(maestro,regM);
       regM.stockAct := regM.stockAct - regD.uVendidas;
       Seek(maestro,pos);
       Write(maestro,regM);
     end;
-
-
-
+    leerDetalle(detalle,regD);
   end;
 end;
 
@@ -85,3 +80,8 @@ begin
   Assign(det1,'archivoDetalle.bin');
   actuaizarMaestro(mae1,det1);
 End.
+
+{
+  B.
+
+}
