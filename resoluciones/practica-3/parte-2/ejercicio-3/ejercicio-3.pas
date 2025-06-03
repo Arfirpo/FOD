@@ -43,54 +43,6 @@ type
   end;
 
 
-  procedure agregarFecha(var l: lFechas; fecha: string);
-  var nue: lFechas;
-  begin
-    new(nue);
-    nue^.dato := fecha;
-    nue^.sig := l;
-    l := nue;
-  end;
-
-  procedure agregarCodUsuario(var l: lUsuarios; codUsuario: integer);
-  var nue: lUsuarios;
-  begin
-    new(nue);
-    nue^.dato := codUsuario;
-    nue^.sig := l;
-    l := nue;
-  end;
-
-  function buscarCodigo(l: lUsuarios; codigo: integer): boolean;
-  var 
-    ok: boolean;
-    act: lCodigos;
-  begin
-    ok := false
-    act := l;
-    while (act <> nil) and not(ok) do begin
-      if(act^.cod_usuario = codigo) then
-        ok := true;
-      act := act^.sig;
-    end;
-    buscarCodigo := ok;
-  end;
-
-  function buscarFecha(l: lFechas; fecha: string): boolean;
-  var 
-    ok: boolean;
-    act: lFechas;
-  begin
-    ok := false
-    act := l;
-    while (act <> nil) and not(ok) do begin
-      if(act^.dato = fecha) then
-        ok := true;
-      act := act^.sig;
-    end;
-    buscarCodigo := ok;
-  end;
-
   procedure generarArchivoMaestro(var maestro: ArchivoMaestro; vD: VectorArchivoDetalle);
   var
     i,codAct: integer;
@@ -128,9 +80,10 @@ type
           regM.cod_usuario := regD.cod_usuario;
           regM.fecha := regD.fecha;
           regM.tiempo_sesion := regD.tiempo_sesion;
-
+          // Posicionarse al final del archivo para agregar
           Seek(maestro,filesize(maestro));
           write(maestro,regM);
+          leer(vD[i],regD);
         end;
       end;
       Close(vD[i]);
