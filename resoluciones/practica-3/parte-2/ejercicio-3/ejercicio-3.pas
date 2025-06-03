@@ -20,7 +20,6 @@ type
   ArchivoDetalle = file of Sesion;
 
   VectorArchivoDetalle = array[1..dimF] of ArchivoDetalle;
-  VectorRegistroDetalle = array [1..dimF] of Sesion;
 
   lUsuarios = ^nUsuarios;
   nUsuarios = record
@@ -43,25 +42,6 @@ type
       dato.cod_usuario := valorAlto;
   end;
 
-  procedure minimo(var vD: VectorArchivoDetalle; var vR: VectorRegistroDetalle; var minRegD: Sesion);
-  var 
-    i,minCod,pos:integer;
-    minFecha: string;
-  begin
-    minCod := valorAlto;
-    minFecha := 'ZZZ';
-    pos := -1;
-    for i := 1 to dimF do begin
-      if(vR[i].cod_usuario < minCod) or ((vR[i].cod_usuario = minCod) and (vR[i].fecha < minFecha)) then begin
-        minCod := vR[i].cod_usuario;
-        minFecha := vR[i].fecha;
-        minRegD :=  vR[i];
-        pos := i;
-      end;
-    end;
-    if(minCod <> valorAlto) then
-      leer(vD[pos],vR[pos]);
-  end;
 
   procedure agregarFecha(var l: lFechas; fecha: string);
   var nue: lFechas;
@@ -81,37 +61,80 @@ type
     l := nue;
   end;
 
+  function buscarCodigo(l: lUsuarios; codigo: integer): boolean;
+  var 
+    ok: boolean;
+    act: lCodigos;
+  begin
+    ok := false
+    act := l;
+    while (act <> nil) and not(ok) do begin
+      if(act^.cod_usuario = codigo) then
+        ok := true;
+      act := act^.sig;
+    end;
+    buscarCodigo := ok;
+  end;
+
+  function buscarFecha(l: lFechas; fecha: string): boolean;
+  var 
+    ok: boolean;
+    act: lFechas;
+  begin
+    ok := false
+    act := l;
+    while (act <> nil) and not(ok) do begin
+      if(act^.dato = fecha) then
+        ok := true;
+      act := act^.sig;
+    end;
+    buscarCodigo := ok;
+  end;
+
   procedure generarArchivoMaestro(var maestro: ArchivoMaestro; vD: VectorArchivoDetalle);
   var
     i,codAct: integer;
     fechaAct: string;
-    regM,minRegD: Sesion;
-    vR: VectorRegistroDetalle;
+    regM,regD: Sesion;
     totSesion: real;
+    encontrado: boolean;
   begin
     Rewrite(maestro);
+    // Procesar cada archivo detalle (uno por máquina)
     for i := 1 to dimF do begin
       Reset(vD[i]);
-      leer(vD[i],vR[i]);
-    end;
-    minimo(vD,vR,minRegD);
-    while (minRegD.cod_usuario <> valorAlto) do begin
-      codAct := minRegD.cod_usuario;
-      while (minRegD.cod_usuario = codAct) do begin
-        fechaAct := minRegD.fecha;
-        totSesion := 0;
-        while (minRegD.cod_usuario = codAct) and (minRegD.fecha = fechaAct) do begin
-          totSesion := totSesion + minRegD.tiempo_sesion;
-          minimo(vD,vR,minRegD);
+      leer(vD[i],regD);
+      // Procesar cada registro del archivo detalle actual
+      while (regD.cod_usuario <> valorAlto) do begin
+        // Buscar si ya existe una entrada para este usuario y fecha
+        encontrado := false;
+        seek(maestro,0);
+        while (not(Eof(maestro))) and (not(encontrado)) do begin
+          read(maestro,regM);
+          // Verificar si coinciden usuario y fecha
+          if (regM.cod_usuario = regD.cod_usuario) and (regM.fecha = regD.fecha) then begin
+            encontrado := true;
+             // Acumular el tiempo de sesión
+            regM.tiempo_sesion := regM.tiempo_sesion + regD.tiempo_sesion;
+          end;
         end;
-        regM.cod_usuario := codAct;
-        regM.fecha := fechaAct;
-        regM.tiempo_sesion := totSesion;
-        write(maestro,regM);
+        // Si ya existia el usuario y la fecha, Actualizar registro existente
+        if (encontrado) then begin
+          Seek(maestro,filepos(maestro) - 1);
+          write(maestro,regM);
+        end
+        //Sino, Crear nuevo registro en el maestro
+        else begin
+          regM.cod_usuario := regD.cod_usuario;
+          regM.fecha := regD.fecha;
+          regM.tiempo_sesion := regD.tiempo_sesion;
+
+          Seek(maestro,filesize(maestro));
+          write(maestro,regM);
+        end;
       end;
+      Close(vD[i]);
     end;
-    close(maestro);
-    for i := 1 to dimF do close(vD[i]); 
     Writeln('Archivo Actualizado con exito.');
   end;
 

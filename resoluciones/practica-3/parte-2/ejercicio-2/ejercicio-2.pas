@@ -37,6 +37,21 @@ begin
 	l := nue;
 end;
 
+function buscarCodigo(l: lCodigos; codigo: integer): boolean;
+var 
+	ok: boolean;
+	act: lCodigos;
+begin
+	ok := false
+	act := l;
+	while (act <> nil) and not(ok) do begin
+		if(act^.cod_usuario = codigo) then
+			ok := true;
+		act := act^.sig;
+	end;
+	buscarCodigo := ok;
+end;
+
 procedure generaReporte(var maestro: ArchivoMaestro);
 var
     regM: MesaElectoral;
