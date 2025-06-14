@@ -1,69 +1,75 @@
-program ejercicio_1_P4;
-
-
-//punto A
-const
-  orden = 'M';
-
-type
-  str8 = String[8];
-  Alumno = record
-    nomYape: string[15];
-    dni: str8;
-    legajo: str8;
-    anioIngreso: string[4];
-  end;
-
-  nodo = record
-    datos: array [0..orden - 1] of Alumno;
-    hijos: array [0..orden] of integer;
-    cantDatos: integer; 
-  end;
-
-  ArchivoArbolB = file of nodo;
-
-var
-
-begin
-  
-End.
-
-
 {
-//punto b
+Ejercicio - Árbol B para archivo de alumnos
 
-N = (M-1) * A + M * B + C
+a. Estructuras de datos:
+	Un árbol B de orden M permite hasta M-1 claves y M hijos por nodo.
+	Definimos los siguientes tipos:
 
-512 = (M-1) * 64 + M * 4 + 4
+	const
+		M = 8;  // calculado en el punto b
 
-512 = 64M - 64 + 4M + 4
-512 = 68M - 60
-512 + 60 = 68M
-572 / 68 = M
-M = 8,41
+	type
+		Alumno = record
+			nombreApellido: string[50];  // tamaño fijo
+			dni: longint;
+			legajo: longint;
+			anioIngreso: integer;
+		end;
 
-En este arbol B entrarian 7 (M-1) registros de persona porque eñ orden del arbol es 8 (M).
+		NodoB = record
+			cantClaves: integer;  // campo C
+			claves: array[1..M-1] of Alumno;  // registros (A)
+			hijos: array[1..M] of integer;    // punteros a hijos (B)
+		end;
 
+		ArchivoB = file of NodoB;
 
-//punto c
+b. Cálculo del orden M del árbol B:
+	Datos:
+		- N = tamaño del nodo = 512 bytes
+		- A = tamaño de un registro Alumno = 64 bytes
+		- B = tamaño de un puntero a hijo = 4 bytes
+		- C = tamaño del campo cantClaves = 4 bytes
 
-El valor de M determina la cantidad máxima de claves y de hijos que puede tener un nodo en el árbol B. Un valor mayor de 
-M resultará en nodos más grandes y, por lo tanto, en una estructura de árbol B más ancha y menos profunda. Por otro lado, un valor menor de 
-M resultará en nodos más pequeños y en una estructura de árbol B más profunda pero más estrecha.
+	Fórmula:
+		N = (M-1) * A + M * B + C
+		512 = (M-1) * 64 + M * 4 + 4
+		512 = 64M - 64 + 4M + 4 = 68M - 60
+		572 = 68M
+		M ≈ 8.41 → M = 8 (entero)
 
+	Entonces:
+		- Máximo de claves por nodo = M - 1 = 7
+		- Máximo de hijos por nodo = M = 8
 
-//punto d
+c. Impacto de almacenar toda la información en el árbol:
+	- Al usar registros grandes (64 bytes), entran menos claves por nodo.
+	- El valor de M se reduce, aumentando la altura del árbol.
+	- Esto implica más accesos a disco (menos eficiente).
+	- Alternativa: guardar solo claves y un puntero a los datos reales.
 
-Yo elegiria un campo del registro alumnos que posea caracter de univoco (que no se pueda repetir, que sea unico. En este caso podria ser el campo dni o el campo legajo.)
+d. Clave de identificación:
+	- Opción recomendada: legajo (numérico, único, fijo).
+	- Otras opciones: DNI (también único), nombre (no recomendado por duplicados).
+	- Legajo es más adecuado para ordenamiento y búsqueda eficiente.
 
-//punto e
+e. Búsqueda por legajo:
+	- Comienza desde la raíz y desciende comparando claves.
+	- Mejor caso: alumno está en la raíz → 1 lectura.
+	- Peor caso: alumno está en una hoja → h lecturas.
 
-En el mejor de los casos, se necesita de una única lectura para encontrar un alumno por su clave de identificación.
-En el peor de los casos, se necesita de h lectureas (con h altura del árbol).
+	Altura estimada:
+		h ≈ log_M(n), con M = 8
+		Si n = 1000 alumnos → h ≈ log₈(1000) ≈ 3.32 → máx 4 lecturas
 
-//punto f
+f. Búsqueda por otro criterio (e.g., DNI o nombre):
+	- No se puede usar búsqueda binaria si no está ordenado por ese campo.
+	- Se requiere recorrido completo (búsqueda secuencial).
+	- Peor caso: leer todos los nodos del árbol.
 
-Si se desea buscar un alumno por un criterio diferente se debe tener en cuenta el árbol por completo, siendo necesarias n lecturas en el 
-peor de los casos, siendo n la cantidad total de nodos que hay en el árbol.
+	Ejemplo:
+		Si hay 1000 alumnos y 7 claves por nodo → 143 nodos aprox.
+		Peor caso: hasta 143 lecturas.
 
+	Solución: usar índices secundarios si se requiere buscar por otros campos.
 }
