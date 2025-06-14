@@ -29,7 +29,7 @@ type
 procedure leerMaestro(var maestro: ArchivoMaestro; var dato: Provincia);
 begin
   if (not(Eof(maestro))) then
-    read(maestro,dato);
+    read(maestro,dato)
   else
     dato.codProv := valorAlto;
 end;
@@ -37,7 +37,7 @@ end;
 procedure leerDetalle(var detalle: ArchivoDetalle; var dato: Relevamiento);
 begin
   if (not(Eof(detalle))) then
-    read(detalle,dato);
+    read(detalle,dato)
   else
     dato.codProv := valorAlto;
 end;
@@ -78,7 +78,7 @@ begin
 
     
     cantConsumida := 0;
-    while (minRegD.cod <> valorAlto) and (minRegD.cod = codAct) do begin
+    while (minRegD.cod = codAct) do begin
       cantConsumida := cantConsumida + minRegD.consumoMensual;
       minimo(vD,vR,minRegD);
     end;

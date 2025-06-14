@@ -3,7 +3,7 @@ Program ejercicio_4_P2;
 
 Const 
   valorAlto = 9999;
-  dimF = 5;
+  dimF = 5; //30
 
 Type 
   str10 = string[10];
@@ -197,8 +197,7 @@ Begin
     dato.codProd := valorAlto;
 End;
 
-Procedure minimo(vD: vectorArchivoDetalle; vR: vectorRegistroVenta; Var minRegD:
-                 venta);
+Procedure minimo(vD: vectorArchivoDetalle; vR: vectorRegistroVenta; Var minRegD: venta);
 
 Var 
   i,minCod,pos: integer;
